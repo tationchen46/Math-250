@@ -4,6 +4,7 @@ library(factoextra)  # load factoextra for PCA and clustering visualization
 
 # import the dataset
 data <- read.csv("/Users/tianxiangchen/Desktop/math 250/online_shoppers_intention.csv")
+data <- subset(data, select = -Revenue)
 # Explore the dataset
 print(head(data))
 print(summary(data))
@@ -38,6 +39,39 @@ preprocessed_data <- cbind(data_integer, data_contiune,data_categorical)
 print(head(preprocessed_data))
 #Varibale selection
 
+#Factor Analysis
+# Assuming you have decided to extract 3 factors
+fa_result <- factanal(preprocessed_data, factors = 9, rotation = "varimax")
+#Check the Factor loading
+fa_result$loadings
+#Check the Uniqueness
+fa_result$uniquenesses
+#Check the Variance
+# Extracting loadings from the factor analysis result
+loadings <- fa_result$loadings[, 1:9]  # assuming you extracted 3 factors
+
+# Calculating communalities: sum of the squares of the loadings for each variable
+communalities <- rowSums(loadings^2)
+
+# Summing the communalities to get total variance explained
+total_variance_explained <- sum(communalities)
+
+# Total initial variance (assuming each variable was standardized)
+total_initial_variance <- ncol(data)
+
+# Proportion of total variance explained
+proportion_variance_explained <- total_variance_explained / total_initial_variance
+
+# Output the result
+print(paste("Total variance explained by the model: ", proportion_variance_explained * 100, "%"))
+#visualization factor
+
+# Creating a heatmap of the loadings
+heatmap(as.matrix(fa_result$loadings), Rowv = NA, Colv = NA,
+        col = heat.colors(256), scale = "column",
+        margin = c(5, 10))
+
+
 # PCA
 pca_result <- prcomp(preprocessed_data, center = TRUE, scale. = TRUE)
 fviz_eig(pca_result)  # Visualize the explained variance
@@ -61,7 +95,7 @@ ggplot(loadings_df, aes(x = PC1, y = PC2, label = variable)) +
   ggtitle("PCA Loadings Plot") +
   theme_minimal()
 
-#implement the k-means
+#implement the k-means using pca reduction
 set.seed(123)  # for reproducibility
 kmeans_result <- kmeans(pca_data, centers = 2)  # change the number of centers as needed
 # size of each cluster

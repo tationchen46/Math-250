@@ -45,3 +45,34 @@ fviz_eig(pca_result)  # Visualize the explained variance
 # Choose the number of principal components (e.g., components that explain 80% of the variance)
 pca_data <- pca_result$x[, 1:5]  # Assume first 5 components are chosen
 print(pca_data)
+#Extract the loading 
+loadings <- pca_result$rotation[,1:5]
+print(loadings)
+# visualize the loading
+library(ggplot2)
+loadings_df <- as.data.frame(loadings)
+loadings_df$variable <- rownames(loadings)
+
+# Plotting the first two principal components
+ggplot(loadings_df, aes(x = PC1, y = PC2, label = variable)) +
+  geom_text(aes(color = abs(PC1) + abs(PC2))) +  # Color by contribution magnitude
+  xlab("First Principal Component") +
+  ylab("Second Principal Component") +
+  ggtitle("PCA Loadings Plot") +
+  theme_minimal()
+
+#implement the k-means
+set.seed(123)  # for reproducibility
+kmeans_result <- kmeans(pca_data, centers = 2)  # change the number of centers as needed
+# size of each cluster
+print(kmeans_result$size)
+# coordinates of cluster centers
+print(kmeans_result$centers)  
+library(ggplot2)
+#plot the cluster
+clusters <- as.factor(kmeans_result$cluster)
+ggplot(as.data.frame(pca_data), aes(x = PC1, y = PC2, color = clusters)) +
+  geom_point(alpha = 0.5) +
+  geom_point(data = as.data.frame(kmeans_result$centers), aes(x = PC1, y = PC2), color = "red", size = 10) +
+  ggtitle("K-Means Clustering on PCA Results")
+

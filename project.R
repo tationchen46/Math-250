@@ -20,9 +20,9 @@ data <- data %>%
 
 #Separate the data into integer,continuous,categorical
 # Using subset to exclude columns
-data_integer <- subset(data, select = -c(ProductRelated_Duration, BounceRates, ExitRates, Month, VisitorType, Weekend, Revenue))
-data_contiune<- subset(data, select = c(ProductRelated_Duration, BounceRates, ExitRates))
-data_categorical<-subset(data, select = c(Month, VisitorType, Weekend, Revenue))
+data_integer <- subset(data, select = -c(Administrative_Duration,Informational_Duration,ProductRelated_Duration, BounceRates, ExitRates,PageValues,SpecialDay, Month, VisitorType, Weekend))
+data_contiune<- subset(data, select = c(Administrative_Duration,Informational_Duration,ProductRelated_Duration, BounceRates, ExitRates,PageValues,SpecialDay))
+data_categorical<-subset(data, select = c(Month, VisitorType, Weekend))
 # Normalization: Scale numeric features
 # Scale function standardizes data (mean = 0, sd = 1)
 data_contiune <- data_contiune %>%
@@ -70,6 +70,35 @@ print(paste("Total variance explained by the model: ", proportion_variance_expla
 heatmap(as.matrix(fa_result$loadings), Rowv = NA, Colv = NA,
         col = heat.colors(256), scale = "column",
         margin = c(5, 10))
+
+#implement k-means clustering on the results from a factor analysis
+
+# Assuming `data` has been scaled and `fa_result` is your factor analysis output
+factor_scores <- scale(preprocessed_data) %*% fa_result$loadings
+# Assuming you decide on 3 clusters
+set.seed(123)  # for reproducibility
+kmeans_result <- kmeans(factor_scores, centers = 2, nstart = 25)
+
+# Viewing the clustering result
+print(kmeans_result$size)
+print(kmeans_result$centers)
+#Visualize the Results
+library(ggplot2)
+factor_scores_df <- as.data.frame(factor_scores)
+factor_scores_df$cluster <- as.factor(kmeans_result$cluster)
+# Print column names to ensure correct referencing
+print(colnames(factor_scores_df))
+
+ggplot(factor_scores_df, aes(x = Factor1, y = Factor2, color = cluster)) + 
+  geom_point(alpha = 0.5) +
+  labs(title = "K-Means Clustering on Factor Scores",
+       x = "Factor 1 Score",
+       y = "Factor 2 Score")
+
+
+
+
+
 
 
 # PCA

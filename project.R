@@ -140,6 +140,7 @@ ggplot(as.data.frame(pca_data), aes(x = PC1, y = PC2, color = clusters)) +
   ggtitle("K-Means Clustering on PCA Results")
 
 ## t-SNE
+data_total <- read.csv("/Users/tianxiangchen/Desktop/math 250/online_shoppers_intention.csv")
 library(Rtsne)
 set.seed(42)
 # perplexity=30

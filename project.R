@@ -139,3 +139,61 @@ ggplot(as.data.frame(pca_data), aes(x = PC1, y = PC2, color = clusters)) +
   geom_point(data = as.data.frame(kmeans_result$centers), aes(x = PC1, y = PC2), color = "red", size = 10) +
   ggtitle("K-Means Clustering on PCA Results")
 
+## t-SNE
+data_total <- read.csv("/Users/tianxiangchen/Desktop/math 250/online_shoppers_intention.csv")
+library(Rtsne)
+set.seed(42)
+# perplexity=30
+tsne_results_30 <- Rtsne(preprocessed_data, dims = 2, perplexity=30, check_duplicates = FALSE)
+tsne_data_30 <- data.frame(X = tsne_results_30$Y[,1], Y = tsne_results_30$Y[,2], Revenue = data_total$Revenue)
+ggplot(tsne_data_30, aes(x = X, y = Y, color = Revenue)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "t-SNE (p=30)")
+
+# perplexity=10
+tsne_results_10 <- Rtsne(preprocessed_data, dims = 2, perplexity=10, check_duplicates = FALSE)
+tsne_data_10 <- data.frame(X = tsne_results_10$Y[,1], Y = tsne_results_10$Y[,2], Revenue = data_total$Revenue)
+ggplot(tsne_data_10, aes(x = X, y = Y, color = Revenue)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "t-SNE (p=10)")
+
+# perplexity=50
+tsne_results_50 <- Rtsne(preprocessed_data, dims = 2, perplexity=50, check_duplicates = FALSE)
+tsne_data_50 <- data.frame(X = tsne_results_50$Y[,1], Y = tsne_results_50$Y[,2], Revenue = data_total$Revenue)
+ggplot(tsne_data_50, aes(x = X, y = Y, color = Revenue)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "t-SNE (p=50)")
+
+
+## umap
+library(umap)
+set.seed(52)
+umap_results <- umap(preprocessed_data, n_neighbors=50, min_dist=0.1)
+
+# create UMAP data
+umap_data <- data.frame(X = umap_results$layout[,1], Y = umap_results$layout[,2], Revenue = data_total$Revenue)
+
+# visualize UMAP results
+ggplot(umap_data, aes(x = X, y = Y, color = Revenue)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "UMAP Visualization of Online Shoppers' Intentions")
+
+library(cluster)
+set.seed(42)
+kmeans_result <- kmeans(umap_data[, c("X", "Y")], centers=4)
+
+# Label the clustering results on the UMAP map
+umap_data$cluster <- as.factor(kmeans_result$cluster)
+
+ggplot(umap_data, aes(x = X, y = Y, color = Revenue)) +
+  geom_point(aes(shape = cluster), alpha=0.2) +
+  labs(title = "UMAP Visualization with Clusters of Online Shoppers' Intentions")
+
+## LDA
+library(MASS)
+data_total$Revenue <- as.factor(data_total$Revenue)
+
+# Revenue is the categorical variable, and the others are the feature variables
+lda_model <- lda(Revenue ~ ., data = data_total)
+print(lda_model)
+plot(lda_model) 

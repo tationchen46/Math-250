@@ -108,7 +108,7 @@ fviz_eig(pca_result)  # Visualize the explained variance
 # Choose the number of principal components (e.g., components that explain 80% of the variance)
 pca_data <- pca_result$x[, 1:5]  # Assume first 5 components are chosen
 print(pca_data)
-#Extract the loading 
+#Extract the loading
 loadings <- pca_result$rotation[,1:5]
 print(loadings)
 # visualize the loading
